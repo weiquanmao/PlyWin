@@ -1,0 +1,341 @@
+QMenuBar{
+margin:2px 3px 0px 2px;
+background-color:rgb(239,239,242);}
+
+QMenuBar:item{
+border:0;
+padding:0 8px 0 8px;
+background-color:rgb(239,239,242);}
+QMenuBar:item:selected{
+background-color:white;}
+QMenuBar:item:pressed{
+background-color:rgb(230,230,230);
+border-left:1px solid rgb(200,200,200);
+border-right:1px solid rgb(200,200,200);}
+
+QMenu{
+margin:0;
+padding:2px;
+border-left:1px solid rgb(200,200,200);
+border-right:1px solid rgb(200,200,200);
+background-color:rgb(230,230,230);}
+
+QMenu:item{
+color:black;
+padding:3 18px 3 34px;}
+QMenu::item:disabled{
+color:rgb(160,160,160);}
+QMenu::item:enabled:selected{
+background-color:white;}
+QMenu::item:checked{
+border-left:1px solid rgb(0,122,204);
+border-bottom:1px solid rgb(230,230,230);
+border-top:1px solid rgb(230,230,230);
+background-color:rgb(245,245,245);}
+
+QMenu:separator{
+height:1px;
+border:0; padding:0;
+margin:0 0 0 30px;
+background-color:rgb(200,200,200);}
+
+QMenu::icon{
+margin:0 7px 0 7px;}
+
+QMenu::right-arrow{
+image:url(./Resources/images/systemButtons/RArrow1.png);}	
+QMenu::right-arrow:selected:disabled{
+image:url(./Resources/images/systemButtons/RArrow1.png);}
+QMenu:right-arrow:selected{
+image:url(./Resources/images/systemButtons/RArrow2.png);}
+
+QToolBar{
+min-height:25px;
+min-width:2px;
+margin:3px 1px 5px 1px;
+border:0;
+border-left: 1 solid rgb(200,200,200);
+background-color:rgb(239,239,242);}
+
+QToolButton{
+max-height:23px;
+max-width:20px;
+background-color:rgb(239,239,242);
+border:0; padding:0; margin:0px 2px 1px 0;}
+
+QToolButton:hover{
+background-color:white;}
+QToolButton:checked{
+border-bottom:1px solid rgb(0,122,204);
+background-color:white;}
+QToolButton:pressed{
+background-color:rgb(0,122,204);}
+
+.QMdiArea{background-color:white;
+margin:0px;
+border-bottom:1 solid rgb(200,200,200);
+border-top:1 solid rgb(0,122,204);}
+
+QStatusBar{
+border-top:1 solid rgb(200,200,200);
+font: 9pt 微软雅黑;
+background-color:rgb(239,239,242);}
+
+QDockWidget{
+min-width:100px;
+color:rgb(113,113,113);
+titlebar-close-icon:none;}
+
+QDockWidget:title{
+text-align:center;
+padding:0;
+border:0;
+border-top:1px solid rgb(0,122,204);
+border-bottom:1px solid rgb(200,200,200);
+margin:0 2px 0  0;}
+
+QDockWidget:close-button{
+image:url(./Resources/images/systemButtons/DockClose1.png);
+subcontrol-position: top right;
+subcontrol-origin: margin;
+position: absolute;
+top:3px;
+right:4px;
+bottom:0px;
+width:18px;
+min-height:16px;
+border:0;
+padding:0px;
+margin:0;}
+
+QDockWidget:close-button:hover{
+image:url(./Resources/images/systemButtons/DockClose2.png);
+background:white;}
+
+QTreeView{
+border:0;}
+
+QTabBar{
+border-bottom: 3 solid rgb(0,122,204);
+background: rgb(239,239,242);}
+
+QTabBar::tab {
+background: rgb(239,239,242);
+border:0px;
+border-bottom:1 solid rgb(160,160,160);
+border-right: 1 solid rgb(0,122,204);
+min-width: 8ex;
+padding: 2px;}
+
+QTabBar::tab:hover{
+color:white;
+background: rgb(28,151,234);}
+QTabBar::tab:selected{
+color:white;
+background: rgb(0,122,204);}
+
+QTabBar::close-button{
+image: url(./Resources/images/systemButtons/closeG.png);}
+QTabBar::close-button:hover{
+image: url(./Resources/images/systemButtons/closeW.png);
+background: rgba(255,255,255,0.5);}
+QTabBar::close-button:pressed{
+background: rgba(255,255,255,0.3);}
+
+QScrollBar:horizontal{
+border:0;
+height:16px;
+margin:0px 16px 0px 16px;}
+
+QScrollBar:vertical{
+border:0;
+width:16px;
+margin:16px 0px 16px 0px;}
+
+QScrollBar::handle:horizontal{
+background: rgb(200,200,200);
+margin:3px 2px 3px 2px;
+min-width:10px;}
+
+QScrollBar::handle:vertical{
+background: rgb(200,200,200);
+margin:2px 3px 2px 3px;
+min-height:10px;}
+
+QScrollBar::handle:hover{
+background: rgb(130,130,130);}
+
+QScrollBar:add-line:horizontal{
+border:0;
+width:16px;
+subcontrol-position: right;
+subcontrol-origin: margin;}
+QScrollBar:sub-line:horizontal{
+border:0;
+width:16px;
+subcontrol-position: left;
+subcontrol-origin: margin;}
+
+QScrollBar:add-line:vertical{
+border:0;
+height:16px;
+subcontrol-position: bottom;
+subcontrol-origin: margin;}
+QScrollBar:sub-line:vertical{
+border:0;
+height:16px;
+subcontrol-position: top;
+subcontrol-origin: margin;}
+
+QScrollBar::add-page,QScrollBar::sub-page {
+background: none;}
+
+QScrollBar:left-arrow{
+image:url(./Resources/images/systemButtons/left1.png);
+border:0;
+width:14px;
+height:14px;}
+QScrollBar:left-arrow:hover{
+image:url(./Resources/images/systemButtons/left2.png);}
+QScrollBar:left-arrow:pressed{
+background: white;}
+
+QScrollBar:right-arrow{
+image:url(./Resources/images/systemButtons/right1.png);
+border:0;
+width:14px;
+height:14px;}
+QScrollBar:right-arrow:hover{
+image:url(./Resources/images/systemButtons/right2.png);}
+QScrollBar:right-arrow:pressed{
+background: white;}
+	
+QScrollBar:up-arrow{
+image:url(./Resources/images/systemButtons/up1.png);
+border:0;
+width:14px;
+height:14px;}
+QScrollBar:up-arrow:hover{
+image:url(./Resources/images/systemButtons/up2.png);}
+QScrollBar:up-arrow:pressed{
+background: white;}
+	
+QScrollBar:down-arrow{
+image:url(./Resources/images/systemButtons/down1.png);
+border:0;
+width:14px;
+height:14px;}
+QScrollBar:down-arrow:hover{
+image:url(./Resources/images/systemButtons/down2.png);}
+QScrollBar:down-arrow:pressed{
+background: white;}
+
+QPushButton{
+border:0;
+padding:2;
+background-color:rgb(210,210,210);}
+QPushButton::disabled{
+background-color:rgb(230,230,230);}
+QPushButton::hover{
+background-color:white;}
+QPushButton::pressed{
+background-color:rgb(0,122,204);}
+
+
+QSpinBox{
+border:0;
+margin:0;
+padding:0;}
+QSpinBox::up-button{
+margin:0;
+padding:0;
+background-color:rgb(230,230,230);
+}
+QSpinBox::up-button:hover{
+background-color:rgb(230,230,230);
+}
+QSpinBox::up-button:pressed{
+background-color:rgb(0,122,204);
+}
+
+QSpinBox::down-button{
+background-color:rgb(230,230,230);
+}
+QSpinBox::down-button:hover{
+background-color:rgb(230,230,230);
+}
+QSpinBox::down-button:pressed{
+background-color:rgb(0,122,204);
+}
+
+QSpinBox::up-arrow{
+image:url(./Resources/images/systemButtons/up1.png);
+}
+QSpinBox::up-arrow:hover{
+image:url(./Resources/images/systemButtons/up2.png);
+}
+QSpinBox::up-arrow:pressed{
+image:url(./Resources/images/systemButtons/up3.png);
+}
+
+QSpinBox::down-arrow{
+image:url(./Resources/images/systemButtons/down1.png);
+}
+QSpinBox::down-arrow:hover{
+image:url(./Resources/images/systemButtons/down2.png);
+}
+QSpinBox::down-arrow:pressed{
+image:url(./Resources/images/systemButtons/down3.png);
+}
+
+
+QDoubleSpinBox{
+border:0;
+margin:0;
+padding:0;}
+QDoubleSpinBox::up-button{
+margin:0;
+padding:0;
+background-color:rgb(230,230,230);
+}
+QDoubleSpinBox::up-button:hover{
+background-color:rgb(230,230,230);
+}
+QDoubleSpinBox::up-button:pressed{
+background-color:rgb(0,122,204);
+}
+
+QDoubleSpinBox::down-button{
+background-color:rgb(230,230,230);
+}
+QDoubleSpinBox::down-button:hover{
+background-color:rgb(230,230,230);
+}
+QDoubleSpinBox::down-button:pressed{
+background-color:rgb(0,122,204);
+}
+
+QDoubleSpinBox::up-arrow{
+image:url(./Resources/images/systemButtons/up1.png);
+}
+QDoubleSpinBox::up-arrow:hover{
+image:url(./Resources/images/systemButtons/up2.png);
+}
+QDoubleSpinBox::up-arrow:pressed{
+image:url(./Resources/images/systemButtons/up3.png);
+}
+
+QDoubleSpinBox::down-arrow{
+image:url(./Resources/images/systemButtons/down1.png);
+}
+QDoubleSpinBox::down-arrow:hover{
+image:url(./Resources/images/systemButtons/down2.png);
+}
+QDoubleSpinBox::down-arrow:pressed{
+image:url(./Resources/images/systemButtons/down3.png);
+}
+
+QProgressBar{
+border:0;}
+QProgressBar::chunk{
+background-color:rgb(40,160,70);}

@@ -1,0 +1,131 @@
+10
+
+dir
+5145
+svn://svn.code.sf.net/p/vcg/code/trunk/vcglib/eigenlib/Eigen/src
+svn://svn.code.sf.net/p/vcg/code
+
+
+
+2013-12-16T12:06:34.649605Z
+5041
+pietroni
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+e8973e21-934d-0410-ac44-de4585f5606d
+
+SuperLUSupport
+dir
+
+SVD
+dir
+
+Sparse
+dir
+
+OrderingMethods
+dir
+
+PardisoSupport
+dir
+
+StlSupport
+dir
+
+SparseCholesky
+dir
+
+PaStiXSupport
+dir
+
+IterativeLinearSolvers
+dir
+
+Eigen2Support
+dir
+
+SparseCore
+dir
+
+Eigenvalues
+dir
+
+CMakeLists.txt
+file
+
+
+
+
+2013-05-22T15:25:27.939675Z
+2ebef3f13165f24e7bc3f09b782f73b2
+2011-10-05T15:04:40.740408Z
+4180
+cignoni
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+308
+
+LU
+dir
+
+plugins
+dir
+
+Cholesky
+dir
+
+Householder
+dir
+
+CholmodSupport
+dir
+
+QR
+dir
+
+UmfPackSupport
+dir
+
+Jacobi
+dir
+
+Core
+dir
+
+misc
+dir
+
+Geometry
+dir
+
