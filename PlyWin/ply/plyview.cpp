@@ -759,6 +759,44 @@ void drawSqure(const vcg::Point3f &po, const vcg::Point3f &dx, const vcg::Point3
 
 	glPopAttrib();
 }
+void drawCircle(const vcg::Point3f &po, const vcg::Point3f &pn, const double r, const int colorcode)
+{
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glDepthMask(GL_FALSE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_LIGHTING);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glColor4f(
+        Color_Plane[colorcode % 10][0] / 255.0,
+        Color_Plane[colorcode % 10][1] / 255.0,
+        Color_Plane[colorcode % 10][2] / 255.0,
+        0.6);
+
+    const double NN = 2;
+    vcg::Point3f n, u, v;
+    n = pn;
+    vcg::GetUV(n, u, v);
+    glBegin(GL_POLYGON);
+    for (int i = 0; i<360; i += NN) {
+        double rang = i*3.14159 / 180.0;
+        vcg::Point3f dr = (u*sin(rang) + v*cos(rang))*r;
+        glVertex(po + dr);
+    }
+    glEnd();
+
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glLineWidth(2);
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i<360; i += NN) {
+        double rang = i*3.14159 / 180.0;
+        vcg::Point3f dr = (u*sin(rang) + v*cos(rang))*r;
+        glVertex(po + dr);
+    }
+    glEnd();
+
+    glPopAttrib();
+}
 void PlyView::drawStruct()
 {
 	if (m_ObjSet ==0 || (m_ObjSet->m_SolidList.empty() && m_ObjSet->m_PlaneList.empty()))
@@ -768,23 +806,29 @@ void PlyView::drawStruct()
 	
     for (int i = 0; i < m_ObjSet->m_SolidList.size(); i++) {
         ObjSolid *objSolid = m_ObjSet->m_SolidList.at(i);
-        if (objSolid->type() == ObjSolid::Solid_Cube)
+        if (objSolid->type() == Solid_Cube)
         {
             ObjCube *cube = (ObjCube*)objSolid;
-            drawBox(cube->m_pO, cube->m_dX, cube->m_dY, cube->m_dZ);
+            drawBox(cube->m_O, cube->m_AX, cube->m_AY, cube->m_AZ);
         }
-        if (objSolid->type() == ObjSolid::Solid_Cylinder)
+        if (objSolid->type() == Solid_Cylinder)
         {
             ObjCylinder *cyl = (ObjCylinder*)objSolid;
-            drawCylinder(cyl->m_pO, cyl->m_N, cyl->m_radius, cyl->m_length);
+            drawCylinder(cyl->m_O, cyl->m_N, cyl->m_radius, cyl->m_length);
         }
     }
-	for (int i=0; i<m_ObjSet->m_PlaneList.size(); i++)
-		drawSqure(
-            m_ObjSet->m_PlaneList.at(i)->m_pO,
-            m_ObjSet->m_PlaneList.at(i)->m_dX,
-            m_ObjSet->m_PlaneList.at(i)->m_dY,
-            m_ObjSet->m_PlaneList.at(i)->m_PlaneIndex);
+    for (int i = 0; i < m_ObjSet->m_PlaneList.size(); i++) {
+        ObjPatch *patch = m_ObjSet->m_PlaneList.at(i);
+        if (patch->type() == Patch_Rectangle) {
+            ObjRect *rect = (ObjRect*)patch;
+            drawSqure(rect->m_O, rect->m_AX, rect->m_AY, rect->m_index & 0x00FF);
+        }
+        if (patch->type() == Patch_Circle) {
+            ObjCircle *circle = (ObjCircle*)patch;
+            drawCircle(circle->m_O, circle->m_N, circle->m_radius, circle->m_index & 0x00FF);
+        }
+    }
+		
     glPopMatrix();
     glPopAttrib();
 
