@@ -97,6 +97,24 @@
     <ClCompile Include="ply\GeometryObject.cpp">
       <Filter>Ply</Filter>
     </ClCompile>
+    <ClCompile Include="ply\pannelobjlist.cpp">
+      <Filter>Ply</Filter>
+    </ClCompile>
+    <ClCompile Include="ply\pannelsetting.cpp">
+      <Filter>Ply</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_pannelsetting.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_pannelsetting.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_pannelobjlist.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_pannelobjlist.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="PlyWin.qrc">
@@ -109,6 +127,12 @@
       <Filter>Ply</Filter>
     </CustomBuild>
     <CustomBuild Include="ply\plywindow.h">
+      <Filter>Ply</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ply\pannelobjlist.h">
+      <Filter>Ply</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ply\pannelsetting.h">
       <Filter>Ply</Filter>
     </CustomBuild>
   </ItemGroup>

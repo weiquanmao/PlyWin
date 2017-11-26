@@ -2,7 +2,6 @@
 #define _PLY_WINDOW_H_FILE_
 
 #include <QMainWindow>
-#include <QDialog>
 
 class PlyView;
 class RenderParamSet;
@@ -14,30 +13,8 @@ class QThread3DPro;
 class QDoubleSpinBox;
 class QPushButton;
 
-class SettingDlgView : public QDialog
-{
-	Q_OBJECT
-
-public:
-	SettingDlgView(QWidget *parent = 0);
-	~SettingDlgView();
-
-	void setParams(float *rot, float *tra, float scale);
-	void getParams(float *rot, float *tra, float *scale);
-private:
-	QPushButton *okButton;
-	QPushButton *cancelButton;
-
-	QDoubleSpinBox *fSpin_RX;
-	QDoubleSpinBox *fSpin_RY;
-	QDoubleSpinBox *fSpin_RZ;
-	QDoubleSpinBox *fSpin_TX;
-	QDoubleSpinBox *fSpin_TY;
-	QDoubleSpinBox *fSpin_TZ;
-	QDoubleSpinBox *fSpin_S;
-private:
-	void setupme();
-};
+class PanelSetting;
+class PanelObjList;
 
 class PlyWindow : public QMainWindow
 {
@@ -55,6 +32,7 @@ private:
 	QToolBar *toolBar;
 	QAction *actionOpen;
 	QAction *actionSave;
+    QAction *actionShot;
 	QAction *actionReset;
 	QAction *actionShowTrackBall;
 	QAction *actionShowInfoPanel;
@@ -65,9 +43,9 @@ private:
 	QAction *actionModel_Flat;
 	QAction *actionModel_FlatAndLines;
 	QAction *actionModel_Smooth;
-	QAction *actionSetting;
+    QAction *actionShowViewParam;
 	QLabel *statusLabel;
-	SettingDlgView *dlg;
+    PanelSetting *panel_setting;
 	void createActions();
 	void createToolBar();
 	void createStatusBar();
@@ -79,12 +57,16 @@ protected:
 private slots:
 	void slotOpen();
 	void slotSave();
+    void slotShot();
 	void slotReset();
 	void slotShowTrackBall();
 	void slotShowInfoPanel();
+    void slotShowViewParam(bool bOn);
 	void slotChangLight();
 	void slotChangeModel(QAction *act);
-	void slotSetView();
+
+    void slotSetViewParam();
+    void slotUpdateViewParam();
 
 	void slotProgressBegin(QString dsc);
 	void slotProgressEnd();
@@ -94,17 +76,22 @@ private slots:
 private:
 	QActionGroup *actionGroupPlugin;
 	QAction *actionPlugin_loadStruct;
+    QAction *actionPlugin_ShowObjList;
+    void createPluginWidget();
 	void createPluginActions();
 	void createPluginToolBar();
 	void createPluginStatusBar();
 	void createPluginThread();
 private:
-	void updatePluginButton();
-	void releasePlugin();
-
-private:
-
+    PanelObjList *pannel_objList;
+private:    
+    void releasePlugin();
+    void pluginUpdate();
+	void updatePluginButton();	
+    void pluginLoad(QString file = "");   
 private slots:
+    void slotPluginUpdateViewList();
+    void slotPluginShowObjList(bool bOn);
 	void slotPluginProcessing(QAction *act);
 
 #pragma endregion

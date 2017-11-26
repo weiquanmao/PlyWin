@@ -92,10 +92,19 @@ private:
 // ------ Begin My Satelite ------
 private:
 	ObjSet *m_ObjSet;
+    std::vector<int> m_viewList;
+    float m_alpha;
 public:
+    ObjSet *getStruct() { return m_ObjSet; };
 	void setStruct(ObjSet *sate);
 	void loadStruct(QString file = "");
+    void setStrucViewList(std::vector<int> list);
+
+    void setAlpha(float alpha) { m_alpha = alpha; updateGL(); }
+    float getAlpha() { return m_alpha; }
+   
 private:
+    bool containId(const int id);
 	void drawStruct();
 // ------ End My Satelite ------
 private:
@@ -118,6 +127,8 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *e);
 	void wheelEvent(QWheelEvent *e);
 	void paintEvent(QPaintEvent *event);
+signals:
+    void viewUpdated();
 };
 
 

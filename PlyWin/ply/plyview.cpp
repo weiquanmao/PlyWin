@@ -51,6 +51,7 @@ void GLRenderSetting::updateSetting( RenderParamSet& renderParamSet)
 PlyView::PlyView(QWidget *parent, RenderParamSet *showParameterSet)
 	: QGLWidget(parent)
 	, m_ObjSet(0)
+    , m_alpha(0.3)
 {
 	//setAttribute(Qt::WA_DeleteOnClose,true);
 	setAutoFillBackground(false);
@@ -582,6 +583,7 @@ void PlyView::paintEvent(QPaintEvent *event)
 
     painter.endNativePainting();//½áÊø
 	
+    emit viewUpdated();
 }
 
 void PlyView::loadStruct(QString file)
@@ -599,7 +601,25 @@ void PlyView::setStruct(ObjSet *odjSet)
 	if (m_ObjSet != 0)
 		delete m_ObjSet;
     m_ObjSet = odjSet;
+    int nPlane = m_ObjSet->m_PlaneList.size();
+    int nSolid = m_ObjSet->m_SolidList.size();
+    std::vector<int> list;
+    for (int i = 0; i < nPlane; i++) {
+        ObjPatch *patch = m_ObjSet->m_PlaneList.at(i);
+        list.push_back(patch->m_index);
+ 
+    }
+    for (int i = 0; i < nSolid; i++) {
+        ObjSolid *solid = m_ObjSet->m_SolidList.at(i);
+        list.push_back(solid->m_index);
+    }
+    setStrucViewList(list);
 	repaint();
+}
+void PlyView::setStrucViewList(std::vector<int> list)
+{
+    m_viewList.swap(list);
+    repaint();
 }
 void drawCylinder(const vcg::Point3f &po, const vcg::Point3f &naxis, const double r, const double l)
 {
@@ -646,7 +666,7 @@ void drawCylinder(const vcg::Point3f &po, const vcg::Point3f &naxis, const doubl
 	glEnd();
 	glPopAttrib();
 }
-void drawBox(const vcg::Point3f &po, const vcg::Point3f &dx, const vcg::Point3f &dy, const vcg::Point3f &dz)
+void drawBox(const vcg::Point3f &po, const vcg::Point3f &dx, const vcg::Point3f &dy, const vcg::Point3f &dz, const float alpha)
 {
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glDepthMask(GL_FALSE);
@@ -654,7 +674,7 @@ void drawBox(const vcg::Point3f &po, const vcg::Point3f &dx, const vcg::Point3f 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_LIGHTING);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glColor4f(1.0,0.0,0.0,0.3);
+	glColor4f(1.0,0.0,0.0, alpha);
 
 	vcg::Point3f pxy = po + dx + dy;
 	vcg::Point3f pzx = po + dx + dz;
@@ -723,7 +743,7 @@ void drawBox(const vcg::Point3f &po, const vcg::Point3f &dx, const vcg::Point3f 
 	glPopAttrib();
 
 }
-void drawSqure(const vcg::Point3f &po, const vcg::Point3f &dx, const vcg::Point3f &dy, const int colorcode)
+void drawSqure(const vcg::Point3f &po, const vcg::Point3f &dx, const vcg::Point3f &dy, const int colorcode, const float alpha)
 {
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glDepthMask(GL_FALSE);
@@ -735,7 +755,7 @@ void drawSqure(const vcg::Point3f &po, const vcg::Point3f &dx, const vcg::Point3
 		Color_Plane[colorcode % 10][ 0 ] / 255.0,
 		Color_Plane[colorcode % 10][ 1 ] / 255.0,
 		Color_Plane[colorcode % 10][ 2 ] / 255.0,
-		0.6);
+        sqrt(alpha));
 
 	glBegin(GL_QUADS);
       glVertex(po);
@@ -759,7 +779,7 @@ void drawSqure(const vcg::Point3f &po, const vcg::Point3f &dx, const vcg::Point3
 
 	glPopAttrib();
 }
-void drawCircle(const vcg::Point3f &po, const vcg::Point3f &pn, const double r, const int colorcode)
+void drawCircle(const vcg::Point3f &po, const vcg::Point3f &pn, const double r, const int colorcode, const float alpha)
 {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glDepthMask(GL_FALSE);
@@ -771,7 +791,7 @@ void drawCircle(const vcg::Point3f &po, const vcg::Point3f &pn, const double r, 
         Color_Plane[colorcode % 10][0] / 255.0,
         Color_Plane[colorcode % 10][1] / 255.0,
         Color_Plane[colorcode % 10][2] / 255.0,
-        0.6);
+        sqrt(alpha));
 
     const double NN = 2;
     vcg::Point3f n, u, v;
@@ -797,6 +817,13 @@ void drawCircle(const vcg::Point3f &po, const vcg::Point3f &pn, const double r, 
 
     glPopAttrib();
 }
+bool PlyView::containId(const int id)
+{
+    for (int i = 0; i < m_viewList.size(); ++i)
+        if (m_viewList.at(i) == id)
+            return true;
+    return false;
+}
 void PlyView::drawStruct()
 {
 	if (m_ObjSet ==0 || (m_ObjSet->m_SolidList.empty() && m_ObjSet->m_PlaneList.empty()))
@@ -806,10 +833,12 @@ void PlyView::drawStruct()
 	
     for (int i = 0; i < m_ObjSet->m_SolidList.size(); i++) {
         ObjSolid *objSolid = m_ObjSet->m_SolidList.at(i);
+        if (!containId(objSolid->m_index))
+            continue;
         if (objSolid->type() == Solid_Cube)
         {
             ObjCube *cube = (ObjCube*)objSolid;
-            drawBox(cube->m_O, cube->m_AX, cube->m_AY, cube->m_AZ);
+            drawBox(cube->m_O, cube->m_AX, cube->m_AY, cube->m_AZ, m_alpha);
         }
         if (objSolid->type() == Solid_Cylinder)
         {
@@ -819,13 +848,15 @@ void PlyView::drawStruct()
     }
     for (int i = 0; i < m_ObjSet->m_PlaneList.size(); i++) {
         ObjPatch *patch = m_ObjSet->m_PlaneList.at(i);
+        if (!containId(patch->m_index))
+            continue;
         if (patch->type() == Patch_Rectangle) {
             ObjRect *rect = (ObjRect*)patch;
-            drawSqure(rect->m_O, rect->m_AX, rect->m_AY, rect->m_index & 0x00FF);
+            drawSqure(rect->m_O, rect->m_AX, rect->m_AY, rect->m_index & 0x00FF, m_alpha);
         }
         if (patch->type() == Patch_Circle) {
             ObjCircle *circle = (ObjCircle*)patch;
-            drawCircle(circle->m_O, circle->m_N, circle->m_radius, circle->m_index & 0x00FF);
+            drawCircle(circle->m_O, circle->m_N, circle->m_radius, circle->m_index & 0x00FF, m_alpha);
         }
     }
 		

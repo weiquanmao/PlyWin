@@ -1,5 +1,7 @@
 #include "plywindow.h"
 #include "plyview.h"
+#include "pannelsetting.h"
+#include "pannelobjlist.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -12,110 +14,12 @@
 #include <QDragEnterEvent>
 #include <QMimeData>
 
-#pragma region [-View Setting-]
-#include <QPushButton>
-#include <QDoubleSpinBox>
-#include <QGridLayout>
-SettingDlgView::SettingDlgView(QWidget *parent)
-	: QDialog(parent)
-{
-	setWindowIcon(QIcon("./ply/images/setting.png"));
-	setWindowTitle(QString::fromLocal8Bit("设置"));
-	setupme();
-}
-SettingDlgView::~SettingDlgView()
-{
-}
-void SettingDlgView::setupme()
-{
-	QLabel *labetR = new QLabel(QString::fromLocal8Bit("旋转:"));
-	labetR->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-	fSpin_RX = new QDoubleSpinBox();
-	fSpin_RY = new QDoubleSpinBox();
-	fSpin_RZ = new QDoubleSpinBox();
-	fSpin_RX->setMinimum(-360);
-	fSpin_RX->setMaximum(360);
-	fSpin_RX->setDecimals(8);
-	fSpin_RY->setMinimum(-360);
-	fSpin_RY->setMaximum(360);
-	fSpin_RY->setDecimals(8);
-	fSpin_RZ->setMinimum(-360);
-	fSpin_RZ->setMaximum(360);
-	fSpin_RZ->setDecimals(8);
-	QLabel *labetT = new QLabel(QString::fromLocal8Bit("平移:"));
-	labetT->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-	fSpin_TX = new QDoubleSpinBox();
-	fSpin_TY = new QDoubleSpinBox();
-	fSpin_TZ = new QDoubleSpinBox();
-	fSpin_TX->setMinimum(-1e9);
-	fSpin_TX->setMaximum(1e9);
-	fSpin_TX->setDecimals(8);
-	fSpin_TY->setMinimum(-1e9);
-	fSpin_TY->setMaximum(1e9);
-	fSpin_TY->setDecimals(8);
-	fSpin_TZ->setMinimum(-1e9);
-	fSpin_TZ->setMaximum(1e9);
-	fSpin_TZ->setDecimals(8);
-	QLabel *labetS = new QLabel(QString::fromLocal8Bit("缩放:"));
-	labetS->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-	fSpin_S = new QDoubleSpinBox();
-
-
-	okButton = new QPushButton(QString::fromLocal8Bit("确定"), this);
-	cancelButton = new QPushButton(QString::fromLocal8Bit("取消"), this);
-	QHBoxLayout *layButs = new QHBoxLayout();
-	layButs->addStretch();
-	layButs->addWidget(okButton);
-	layButs->addWidget(cancelButton);
-
-	connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
-	connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-	
-	QGridLayout *lay = new QGridLayout();
-	lay->addWidget(labetR, 0, 0);
-	lay->addWidget(fSpin_RX, 0, 1);
-	lay->addWidget(fSpin_RY, 0, 2);
-	lay->addWidget(fSpin_RZ, 0, 3);
-	lay->addWidget(labetT, 1, 0);
-	lay->addWidget(fSpin_TX, 1, 1);
-	lay->addWidget(fSpin_TY, 1, 2);
-	lay->addWidget(fSpin_TZ, 1, 3);
-	lay->addWidget(labetS, 2, 0);
-	lay->addWidget(fSpin_S, 2, 1);
-
-	QVBoxLayout *Vlay = new QVBoxLayout();
-	Vlay->addLayout(lay);
-	Vlay->addLayout(layButs);
-	setLayout(Vlay);
-}
-void SettingDlgView::setParams(float *rot, float *tra, float scale)
-{
-	fSpin_RX->setValue(rot[0] * 180 / 3.141592635);
-	fSpin_RY->setValue(rot[1] * 180 / 3.141592635);
-	fSpin_RZ->setValue(rot[2] * 180 / 3.141592635);
-	fSpin_TX->setValue(tra[0]);
-	fSpin_TY->setValue(tra[1]);
-	fSpin_TZ->setValue(tra[2]);
-	fSpin_S->setValue(scale);
-}
-void SettingDlgView::getParams(float *rot, float *tra, float *scale)
-{
-	rot[0] = fSpin_RX->value() / 180.0 * 3.141592635;
-	rot[1] = fSpin_RY->value() / 180.0 * 3.141592635;
-	rot[2] = fSpin_RZ->value() / 180.0 * 3.141592635;
-	tra[0] = fSpin_TX->value();
-	tra[1] = fSpin_TY->value();
-	tra[2] = fSpin_TZ->value();
-	*scale = fSpin_S->value();
-}
-#pragma endregion
 
 #pragma region [-View Part-]
 PlyWindow::PlyWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, plyView(0)
 	, bRuning(false)
-	, dlg(0)
 {
 	setAcceptDrops(true);
 	//setAttribute(Qt::WA_DeleteOnClose,true);
@@ -129,16 +33,25 @@ PlyWindow::PlyWindow(QWidget *parent)
 	createToolBar();
 	createStatusBar();
 
-	createPluginActions();
-	createPluginToolBar();
-	createPluginStatusBar();
-	createPluginThread();
-
 	plyView = new PlyView(this);
-	setCentralWidget(plyView);
-	
-	resize(512,512);
-	updatePluginButton();
+    setCentralWidget(plyView);
+    panel_setting = new PanelSetting(this);
+    panel_setting->setFeatures(QDockWidget::NoDockWidgetFeatures | QDockWidget::DockWidgetFloatable);
+    panel_setting->setAllowedAreas(Qt::TopDockWidgetArea);
+    panel_setting->setVisible(false);   
+    addDockWidget(Qt::TopDockWidgetArea, panel_setting);
+
+    createPluginActions();
+    createPluginToolBar();
+    createPluginStatusBar();
+    createPluginThread();
+    createPluginWidget();
+    pluginUpdate();
+
+    connect(plyView, SIGNAL(viewUpdated()), this, SLOT(slotUpdateViewParam()));
+    connect(panel_setting, SIGNAL(signalUpdate()), this, SLOT(slotSetViewParam()));
+    
+    resize(512, 512);
 	show();
 }
 PlyWindow::~PlyWindow()
@@ -150,17 +63,18 @@ PlyWindow::~PlyWindow()
 bool PlyWindow::openFile(QString file)
 {
 	int bOpen = plyView->open(file);
-	updatePluginButton();
 	if( !bOpen)
 	{
 		statusBar()->showMessage("Open Failed!", 5000);
 		actionSave->setEnabled(false);
+        actionShot->setEnabled(false);
 		return false;
 	} else	{
 		autoMode();
 		setWindowTitle(QString("3DViewer - [%1]").arg(file));
 		statusLabel->setText(file);
 		actionSave->setEnabled(true);	
+        actionShot->setEnabled(true);
 		return true;
 	}
 	
@@ -179,6 +93,13 @@ void PlyWindow::createActions()
 	actionSave->setShortcut(QKeySequence::Save);
 	actionSave->setEnabled(false);
 	connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
+
+    actionShot = new QAction("Shot", this);
+    actionShot->setToolTip("Snap Shot.");
+    actionShot->setIcon(QIcon("./ply/images/snapshot.png"));
+    actionShot->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_S));
+    actionShot->setEnabled(false);
+    connect(actionShot, SIGNAL(triggered()), this, SLOT(slotShot()));
 
 	actionReset = new QAction("Reset",this);
 	actionReset->setToolTip("Reset window.");
@@ -234,10 +155,11 @@ void PlyWindow::createActions()
 	connect(actionGrupModel, SIGNAL(triggered(QAction*)), this, SLOT(slotChangeModel(QAction*)));
 
 	
-	actionSetting = new QAction("Set_View", this);
-	actionSetting->setToolTip("Set View.");
-	actionSetting->setIcon(QIcon("./ply/images/setting.png"));
-	connect(actionSetting, SIGNAL(triggered()), this, SLOT(slotSetView()));
+	actionShowViewParam = new QAction("SettingPanel", this);
+    actionShowViewParam->setCheckable(true);
+    actionShowViewParam->setToolTip("Display Setting Panel.");
+    actionShowViewParam->setIcon(QIcon("./ply/images/setting.png"));
+	connect(actionShowViewParam, SIGNAL(triggered(bool)), this, SLOT(slotShowViewParam(bool)));
 }
 void PlyWindow::createToolBar()
 {
@@ -245,6 +167,7 @@ void PlyWindow::createToolBar()
 	toolBar->setMovable(false);	
 	toolBar->addAction(actionOpen);
 	toolBar->addAction(actionSave);
+    toolBar->addAction(actionShot);
 	toolBar->addSeparator();
 	toolBar->addAction(actionReset);
 	toolBar->addAction(actionLight);
@@ -257,7 +180,7 @@ void PlyWindow::createToolBar()
 	toolBar->addAction(actionModel_FlatAndLines);
 	toolBar->addAction(actionModel_Smooth);
 	toolBar->addSeparator();
-	toolBar->addAction(actionSetting);
+    toolBar->addAction(actionShowViewParam);
 
 	//toolBar->setFixedSize(toolBar->sizeHint());
 	setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -308,10 +231,11 @@ void PlyWindow::dropEvent(QDropEvent *e)
 	const QMimeData* data = e->mimeData();
 	QUrl url = data->urls().at(0);
 	QString path = url.toLocalFile();
-	if (path.endsWith("struct", Qt::CaseInsensitive))
-		plyView->loadStruct(path);
+    if (path.endsWith("struct", Qt::CaseInsensitive))
+        pluginLoad(path);
 	else 
-		openFile(path);
+		openFile(path);    
+    pluginUpdate();
 }
 void PlyWindow::slotOpen()
 {
@@ -324,12 +248,18 @@ void PlyWindow::slotOpen()
 			setWindowTitle(QString("3DViewer - [%1]").arg(file));
 			statusLabel->setText(file);
 			actionSave->setEnabled(true);
+            actionShot->setEnabled(true);
 		}
-	}	
+	}
+    pluginUpdate();
 }
 void PlyWindow::slotSave()
 {
 	plyView->save();
+}
+void PlyWindow::slotShot()
+{
+
 }
 void PlyWindow::slotReset()
 {
@@ -350,6 +280,11 @@ void PlyWindow::slotShowInfoPanel()
 		actionShowInfoPanel->setIcon(QIcon("./ply/images/info.png"));
 	else
 		actionShowInfoPanel->setIcon(QIcon("./ply/images/noinfo.png"));
+}
+
+void PlyWindow::slotShowViewParam(bool bOn)
+{
+    panel_setting->setVisible(bOn);
 }
 void PlyWindow::slotChangLight()
 {
@@ -372,44 +307,59 @@ void PlyWindow::slotChangeModel(QAction *act)
 	else if (act == actionModel_Smooth)
 		plyView->setDrawModel(vcg::GLW::DMSmooth);
 }
-void PlyWindow::slotSetView()
+void PlyWindow::slotUpdateViewParam()
 {
-	if (dlg == 0)
-		dlg = new SettingDlgView;
-	float Rs[3], Ts[3], S;
-	plyView->getTrackBall()->track.rot.ToEulerAngles(Rs[0],Rs[1],Rs[2]);
-	Ts[0] = plyView->getTrackBall()->track.tra[0];
-	Ts[1] = plyView->getTrackBall()->track.tra[1];
-	Ts[2] = plyView->getTrackBall()->track.tra[2];
-	S = plyView->getTrackBall()->track.sca;
-	dlg->setParams(Rs,Ts,S);
-	if (QDialog::Accepted == dlg->exec())
-	{
-		dlg->getParams(Rs, Ts, &S);
-		plyView->getTrackBall()->track.rot.FromEulerAngles(Rs[0], Rs[1], Rs[2]);
-		plyView->getTrackBall()->track.tra[0] = Ts[0];
-		plyView->getTrackBall()->track.tra[1] = Ts[1];
-		plyView->getTrackBall()->track.tra[2] = Ts[2];
-		plyView->getTrackBall()->track.sca = S;
-		plyView->updateGL();
-	}
+    if (!panel_setting->isHidden()) {
+        float Rs[3], Ts[3], S, Alpha;
+        plyView->getTrackBall()->track.rot.ToEulerAngles(Rs[0], Rs[1], Rs[2]);
+        Ts[0] = plyView->getTrackBall()->track.tra[0];
+        Ts[1] = plyView->getTrackBall()->track.tra[1];
+        Ts[2] = plyView->getTrackBall()->track.tra[2];
+        S = plyView->getTrackBall()->track.sca;
+        Alpha = plyView->getAlpha();
+        panel_setting->setParams(Rs, Ts, S, Alpha * 10);
+    }
 }
+
+void PlyWindow::slotSetViewParam()
+{
+    float Rs[3], Ts[3], S;
+    int Alpha;
+	panel_setting->getParams(Rs, Ts, &S, &Alpha);
+	plyView->getTrackBall()->track.rot.FromEulerAngles(Rs[0], Rs[1], Rs[2]);
+	plyView->getTrackBall()->track.tra[0] = Ts[0];
+	plyView->getTrackBall()->track.tra[1] = Ts[1];
+	plyView->getTrackBall()->track.tra[2] = Ts[2];
+	plyView->getTrackBall()->track.sca = S;
+    plyView->setAlpha(Alpha / 10.0);
+	plyView->update();
+}
+
 void PlyWindow::slotProgressBegin(QString dsc)
 {
 	statusLabel->setText(QString("Doing: %1").arg(dsc));
 	bRuning = true;
-	updatePluginButton();
+    pluginUpdate();
 }
 void PlyWindow::slotProgressEnd()
 {
 	bRuning = false;
 	QString file = plyView->getMeshDoc()->mesh->fullName();
 	statusLabel->setText(file);
-	updatePluginButton();
+    pluginUpdate();
 }
 #pragma endregion
 
 #pragma region [-Plugin Part-]
+void PlyWindow::createPluginWidget()
+{
+    pannel_objList = new PanelObjList(this);
+    pannel_objList->setFeatures(QDockWidget::NoDockWidgetFeatures | QDockWidget::DockWidgetFloatable);
+    pannel_objList->setAllowedAreas(Qt::RightDockWidgetArea);
+    pannel_objList->setVisible(false);
+    addDockWidget(Qt::RightDockWidgetArea, pannel_objList);
+    connect(pannel_objList, SIGNAL(signalListChanged()), this, SLOT(slotPluginUpdateViewList()));
+}
 void PlyWindow::createPluginActions()
 {
 	actionGroupPlugin = new QActionGroup(this);
@@ -418,6 +368,12 @@ void PlyWindow::createPluginActions()
 	actionPlugin_loadStruct->setToolTip("Load SateStruct.");
 	actionPlugin_loadStruct->setIcon(QIcon("./ply/images/openstrcture.png"));
 
+    actionPlugin_ShowObjList = new QAction("GEOObjListPanel", this);
+    actionPlugin_ShowObjList->setCheckable(true);
+    actionPlugin_ShowObjList->setToolTip("Display GEOObjList Panel.");
+    actionPlugin_ShowObjList->setIcon(QIcon("./ply/images/objlist.png"));
+    connect(actionPlugin_ShowObjList, SIGNAL(triggered(bool)), this, SLOT(slotPluginShowObjList(bool)));
+
 	actionGroupPlugin->addAction(actionPlugin_loadStruct);
 	connect(actionGroupPlugin, SIGNAL(triggered(QAction*)), this, SLOT(slotPluginProcessing(QAction*)));
 }
@@ -425,6 +381,7 @@ void PlyWindow::createPluginToolBar()
 {
 	toolBar->addSeparator();
 	toolBar->addAction(actionPlugin_loadStruct);
+    toolBar->addAction(actionPlugin_ShowObjList);
 }
 void PlyWindow::createPluginStatusBar()
 {
@@ -432,23 +389,50 @@ void PlyWindow::createPluginStatusBar()
 void PlyWindow::createPluginThread()
 {
 }
+void PlyWindow::pluginUpdate()
+{
+    updatePluginButton();
+    pannel_objList->setList(plyView->getStruct());
+}
 void PlyWindow::updatePluginButton()
 {
-	bool bAble = false;
-	if (!bRuning &&
-		plyView->getMeshDoc()->svn() > 0 )
-		bAble = true;
-	for (int i=0; i<actionGroupPlugin->actions().size(); i++)
-		actionGroupPlugin->actions().at(i)->setEnabled(bAble);
+    actionPlugin_loadStruct->setEnabled(plyView->getMeshDoc()->svn() > 0);
+    if (plyView->getStruct() == 0) {
+        actionPlugin_ShowObjList->triggered(false);
+        actionPlugin_ShowObjList->setChecked(false);
+        actionPlugin_ShowObjList->setEnabled(false);
+    }
+    else {
+        actionPlugin_ShowObjList->setEnabled(true);
+        actionPlugin_ShowObjList->triggered(true);
+        actionPlugin_ShowObjList->setChecked(true);       
+    }
+    
 }
 void PlyWindow::releasePlugin()
 {
 }
+void PlyWindow::pluginLoad(QString file)
+{
+    if (file.endsWith(".struct", Qt::CaseInsensitive))
+        plyView->loadStruct(file);
+    pluginUpdate();
+}
 
+void PlyWindow::slotPluginShowObjList(bool bOn)
+{
+    pannel_objList->setVisible(bOn);
+}
+void PlyWindow::slotPluginUpdateViewList()
+{
+    std::vector<int> list;
+    pannel_objList->getList(list);
+    plyView->setStrucViewList(list);
+}
 void PlyWindow::slotPluginProcessing(QAction *act)
 {
-	if (act == actionPlugin_loadStruct)
-		plyView->loadStruct();
+    if (act == actionPlugin_loadStruct)
+        plyView->loadStruct();
 }
 
 #pragma endregion
