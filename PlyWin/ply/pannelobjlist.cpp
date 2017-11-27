@@ -1,10 +1,10 @@
 #include "pannelobjlist.h"
 #include "GeometryObject.h"
 
-#include <QTableWidget>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
 #include <QHeaderView>
 #include <QCheckBox>
-#include <QLayout>
 
 PanelObjList::PanelObjList(QWidget *parent)
     : QDockWidget(parent)
@@ -14,22 +14,22 @@ PanelObjList::PanelObjList(QWidget *parent)
     setTitleBarWidget(lEmptyWidget);
     delete lTitleBar;
     
-    QWidget *_container = new QWidget();
+    tw = new QTreeWidget(this);
+    tw->headerItem()->setFont(0, QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ")));
+    tw->headerItem()->setText(0, "GEO Obj List");
 
-    tw = new QTableWidget(this);
-    tw->setColumnCount(1);
-    tw->horizontalHeader()->setStretchLastSection(true);
-    tw->horizontalHeader()->hide();
-    tw->verticalHeader()->hide();
-    tw->setShowGrid(false);
-    tw->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_planeList = new QTreeWidgetItem(tw);
+    m_planeList->setText(0, "Patch List");
+    m_planeList->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    m_planeList->setCheckState(0, Qt::Unchecked);
+ 
+    m_solidList = new QTreeWidgetItem(tw);
+    m_solidList->setText(0, "Solid List");
+    m_solidList->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable); 
+    m_solidList->setCheckState(0, Qt::Unchecked);
 
-    QVBoxLayout *lay = new QVBoxLayout;
-    lay->addWidget(tw);
-    lay->setMargin(0);
-    _container->setLayout(lay);
-    _container->setContentsMargins(0, 2, 4, 2);
-    setWidget(_container);
+    setWidget(tw);
+    setFixedWidth(120);
 }
 PanelObjList::~PanelObjList()
 {
@@ -38,43 +38,93 @@ PanelObjList::~PanelObjList()
 
 
 void PanelObjList::setList(ObjSet *objs)
-{
-    for (int i = 0; i < tw->rowCount(); ++i) {
-        QCheckBox *checkItem = (QCheckBox *)tw->cellWidget(i, 0);
-        disconnect(checkItem, SIGNAL(toggled(bool)), this, SIGNAL(signalListChanged()));
+{   
+    disconnect(tw, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(slotTreeItemChanged(QTreeWidgetItem*, int)));
+
+    QList<QTreeWidgetItem*> planeChildren = m_planeList->takeChildren();
+    for (int i = 0; i < planeChildren.size(); ++i) {
+        m_planeList->removeChild(planeChildren.at(i));
     }
-    tw->clear();
+    m_planeList->setCheckState(0,Qt::Unchecked);
+    QList<QTreeWidgetItem*> solidChildren = m_solidList->takeChildren();
+    for (int i = 0; i < solidChildren.size(); ++i) {
+        m_solidList->removeChild(solidChildren.at(i));
+    }
+    m_solidList->setCheckState(0, Qt::Unchecked);
 
     if (objs != 0) {
         const int nPlane = objs->m_PlaneList.size();
         const int nSolid = objs->m_SolidList.size();
-        tw->setRowCount(nPlane+ nSolid);
         for (int i = 0; i < nPlane; i++) {
             ObjPatch *patch = objs->m_PlaneList.at(i);
-            QCheckBox *checkItem = new QCheckBox(QString("%1").arg(patch->m_index));
-            checkItem->setChecked(true);
-            connect(checkItem, SIGNAL(toggled(bool)), this, SIGNAL(signalListChanged()));
-            tw->setCellWidget(i, 0, checkItem);
+            QTreeWidgetItem* item = new QTreeWidgetItem(m_planeList);
+            item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            item->setText(0, QString("%1").arg(patch->m_index));
+            item->setCheckState(0, Qt::Checked);
         }
         for (int i = 0; i < nSolid; i++) {
             ObjSolid *solid = objs->m_SolidList.at(i);
-            QCheckBox *checkItem = new QCheckBox(QString("%1").arg(solid->m_index));
-            checkItem->setChecked(true);
-            connect(checkItem, SIGNAL(toggled(bool)), this, SIGNAL(signalListChanged()));
-            tw->setCellWidget(i+nPlane, 0, checkItem);
+            QTreeWidgetItem* item = new QTreeWidgetItem(m_solidList);
+            item->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+            item->setText(0, QString("%1").arg(solid->m_index));
+            item->setCheckState(0, Qt::Checked);
         }
-        tw->resizeColumnsToContents();
-        tw->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-        setFixedWidth(60);
     }
+    m_planeList->setCheckState(0, Qt::Checked);
+    m_solidList->setCheckState(0, Qt::Checked);
+    m_planeList->setExpanded(true);
+    m_solidList->setExpanded(true);
+
+    connect(tw, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(slotTreeItemChanged(QTreeWidgetItem*, int)));
+    emit signalListChanged();
 }
 void PanelObjList::getList(std::vector<int> &list)
 {
     std::vector<int> _list;
-    for (int i = 0; i < tw->rowCount(); ++i) {
-        QCheckBox *checkItem = (QCheckBox *)tw->cellWidget(i, 0);
-        if (checkItem->isChecked())
-            _list.push_back(checkItem->text().toInt());
+    for (int i = 0; i < m_planeList->childCount(); ++i) {
+        if(m_planeList->child(i)->checkState(0) == Qt::Checked)
+            _list.push_back(m_planeList->child(i)->text(0).toInt());
     }
+    for (int i = 0; i < m_solidList->childCount(); ++i) {
+        if (m_solidList->child(i)->checkState(0) == Qt::Checked)
+            _list.push_back(m_solidList->child (i)->text(0).toInt());
+    }
+   
     list.swap(_list);
+}
+
+void PanelObjList::updateParentItem(QTreeWidgetItem *item)
+{
+    QTreeWidgetItem *parent = item->parent();
+    if (parent != 0)
+    {
+        int selectedCount = 0;
+        int childCount = parent->childCount();
+        for (int i = 0; i < childCount; i++)
+        {
+            QTreeWidgetItem* childItem = parent->child(i);
+            if (childItem->checkState(0) == Qt::Checked)
+                selectedCount++;
+        }
+        if (selectedCount <= 0)
+            parent->setCheckState(0, Qt::Unchecked);
+        else if (selectedCount < childCount)
+            parent->setCheckState(0, Qt::PartiallyChecked);
+        else
+            parent->setCheckState(0, Qt::Checked);
+    }
+}
+void PanelObjList::slotTreeItemChanged(QTreeWidgetItem *item, int column)
+{
+    Qt::CheckState state = item->checkState(0);
+    int count = item->childCount();
+    if (Qt::PartiallyChecked != state) {       
+        if (count == 0)
+            updateParentItem(item);
+        else {
+            for (int i = 0; i < count; i++)
+                item->child(i)->setCheckState(0, state);
+        }
+        emit signalListChanged();
+    }  
 }

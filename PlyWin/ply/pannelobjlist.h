@@ -4,7 +4,8 @@
 #include <QDockWidget>
 #include <vector>
 
-class QTableWidget;
+class QTreeWidget;
+class QTreeWidgetItem;
 
 class ObjSet;
 
@@ -19,8 +20,12 @@ public:
     void setList(ObjSet *objs);
     void getList(std::vector<int> &list);
 private:
-    QTableWidget *tw;
-
+    QTreeWidget *tw;
+    QTreeWidgetItem* m_planeList;
+    QTreeWidgetItem* m_solidList;
+    void updateParentItem(QTreeWidgetItem *item);
+private slots:
+    void slotTreeItemChanged(QTreeWidgetItem *item, int column);
 signals:
     void signalListChanged();
 };
