@@ -158,7 +158,7 @@ void PlyWindow::createActions()
 	connect(actionGrupModel, SIGNAL(triggered(QAction*)), this, SLOT(slotChangeModel(QAction*)));
 
     actionShotFolder = new QAction("Set Snapsot Folder",this);
-    actionShotFolder->setToolTip("set Snapshot folder.");
+    actionShotFolder->setToolTip("Set Snapshot folder.");
     actionShotFolder->setIcon(QIcon("./ply/images/setfolder.png"));
     connect(actionShotFolder, SIGNAL(triggered()), this, SLOT(slotSetShotFolder()));
 
