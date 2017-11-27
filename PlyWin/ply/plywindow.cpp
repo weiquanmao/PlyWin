@@ -6,7 +6,9 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QLabel>
+#include <QPushButton>
 #include <QToolBar>
+#include <QLineEdit>
 #include <QStatusBar>
 #include <QMenuBar>
 #include <QFileDialog>
@@ -19,6 +21,7 @@
 PlyWindow::PlyWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, plyView(0)
+    , m_shotFolder("..")
 	, bRuning(false)
 {
 	setAcceptDrops(true);
@@ -51,6 +54,7 @@ PlyWindow::PlyWindow(QWidget *parent)
     connect(plyView, SIGNAL(viewUpdated()), this, SLOT(slotUpdateViewParam()));
     connect(panel_setting, SIGNAL(signalUpdate()), this, SLOT(slotSetViewParam()));
     
+    setMinimumWidth(512);
     resize(512, 512);
 	show();
 }
@@ -65,7 +69,7 @@ bool PlyWindow::openFile(QString file)
 	int bOpen = plyView->open(file);
 	if( !bOpen)
 	{
-		statusBar()->showMessage("Open Failed!", 5000);
+		statusBar()->showMessage("Open Failed!", 3000);
 		actionSave->setEnabled(false);
         actionShot->setEnabled(false);
 		return false;
@@ -94,13 +98,6 @@ void PlyWindow::createActions()
 	actionSave->setEnabled(false);
 	connect(actionSave, SIGNAL(triggered()), this, SLOT(slotSave()));
 
-    actionShot = new QAction("Shot", this);
-    actionShot->setToolTip("Snap Shot.");
-    actionShot->setIcon(QIcon("./ply/images/snapshot.png"));
-    actionShot->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_S));
-    actionShot->setEnabled(false);
-    connect(actionShot, SIGNAL(triggered()), this, SLOT(slotShot()));
-
 	actionReset = new QAction("Reset",this);
 	actionReset->setToolTip("Reset window.");
 	actionReset->setIcon(QIcon("./ply/images/reset.png"));
@@ -115,6 +112,12 @@ void PlyWindow::createActions()
 	actionShowTrackBall->setToolTip("Display track ball.");
 	actionShowTrackBall->setIcon(QIcon("./ply/images/trackball.png"));
 	connect(actionShowTrackBall, SIGNAL(triggered()), this, SLOT(slotShowTrackBall()));
+
+    actionShowViewParam = new QAction("SettingPanel", this);
+    actionShowViewParam->setCheckable(true);
+    actionShowViewParam->setToolTip("Display Setting Panel.");
+    actionShowViewParam->setIcon(QIcon("./ply/images/setting.png"));
+    connect(actionShowViewParam, SIGNAL(triggered(bool)), this, SLOT(slotShowViewParam(bool)));
 
 	actionLight = new QAction("Light",this);
 	actionLight->setToolTip("Switch light.");
@@ -154,12 +157,22 @@ void PlyWindow::createActions()
 	actionModel_Points->setChecked(true);
 	connect(actionGrupModel, SIGNAL(triggered(QAction*)), this, SLOT(slotChangeModel(QAction*)));
 
-	
-	actionShowViewParam = new QAction("SettingPanel", this);
-    actionShowViewParam->setCheckable(true);
-    actionShowViewParam->setToolTip("Display Setting Panel.");
-    actionShowViewParam->setIcon(QIcon("./ply/images/setting.png"));
-	connect(actionShowViewParam, SIGNAL(triggered(bool)), this, SLOT(slotShowViewParam(bool)));
+    actionShotFolder = new QAction("Set Snapsot Folder",this);
+    actionShotFolder->setToolTip("set Snapshot folder.");
+    actionShotFolder->setIcon(QIcon("./ply/images/setfolder.png"));
+    connect(actionShotFolder, SIGNAL(triggered()), this, SLOT(slotSetShotFolder()));
+
+    editShotName = new QLineEdit(this);
+    editShotName->setFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"));
+    editShotName->setFrame(false);
+    editShotName->setMaximumWidth(128);
+    editShotName->setPlaceholderText("SnapShot");
+    actionShot = new QAction("Snapsot",this);
+    actionShot->setToolTip("Snapshot.");
+    actionShot->setIcon(QIcon("./ply/images/snapshot.png"));
+    actionShot->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_S));
+    actionShot->setEnabled(false);
+    connect(actionShot, SIGNAL(triggered()), this, SLOT(slotShot()));  
 }
 void PlyWindow::createToolBar()
 {
@@ -167,23 +180,24 @@ void PlyWindow::createToolBar()
 	toolBar->setMovable(false);	
 	toolBar->addAction(actionOpen);
 	toolBar->addAction(actionSave);
-    toolBar->addAction(actionShot);
 	toolBar->addSeparator();
 	toolBar->addAction(actionReset);
 	toolBar->addAction(actionLight);
 	toolBar->addAction(actionShowInfoPanel);
 	toolBar->addAction(actionShowTrackBall);
+    toolBar->addAction(actionShowViewParam);
 	toolBar->addSeparator();
 	toolBar->addAction(actionModel_Points);
 	toolBar->addAction(actionModel_Wireframe);
 	toolBar->addAction(actionModel_Flat);
 	toolBar->addAction(actionModel_FlatAndLines);
 	toolBar->addAction(actionModel_Smooth);
-	toolBar->addSeparator();
-    toolBar->addAction(actionShowViewParam);
-
-	//toolBar->setFixedSize(toolBar->sizeHint());
-	setContextMenuPolicy(Qt::ActionsContextMenu);
+    toolBar->addSeparator();
+    toolBar->addAction(actionShotFolder);
+    toolBar->addWidget(editShotName);
+    toolBar->addAction(actionShot);
+    
+   	setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 void PlyWindow::autoMode()
 {
@@ -207,7 +221,7 @@ void PlyWindow::autoMode()
 void PlyWindow::createStatusBar()
 {
 	statusLabel = new QLabel("Ready");
-	statusBar()->addWidget(statusLabel);
+    statusBar()->addWidget(statusLabel);
 }
 
 void PlyWindow::dragEnterEvent(QDragEnterEvent *e)
@@ -240,7 +254,7 @@ void PlyWindow::dropEvent(QDropEvent *e)
 void PlyWindow::slotOpen()
 {
 	if (!plyView->open())
-		statusBar()->showMessage("Open Failed!", 5000);
+		statusBar()->showMessage("Open Failed!", 3000);
 	else {
 		if (plyView->getMeshDoc()->mesh != 0) {
 			autoMode();
@@ -257,9 +271,30 @@ void PlyWindow::slotSave()
 {
 	plyView->save();
 }
+void PlyWindow::slotSetShotFolder()
+{
+    QString folder = QFileDialog::getExistingDirectory(this,
+        QString::fromLocal8Bit("ÉèÖÃ½ØÆÁÍ¼Ïñ±£´æÂ·¾¶..."), m_shotFolder);
+    if (!folder.isEmpty()) {
+        m_shotFolder = folder;
+        statusBar()->showMessage(QString::fromLocal8Bit("½ØÆÁ±£´æÂ·¾¶:%1").arg(m_shotFolder), 3000);
+    }
+}
 void PlyWindow::slotShot()
 {
+    QString fileName = editShotName->text();
+    if (fileName.isEmpty())
+        fileName = "SnapShot";
+    if (!fileName.endsWith(".png", Qt::CaseInsensitive) &&
+        !fileName.endsWith(".jpg", Qt::CaseInsensitive) &&
+        !fileName.endsWith(".bmp", Qt::CaseInsensitive))
+        fileName += ".png";
+    QString filePath = m_shotFolder + '/' + fileName;
 
+    glPushAttrib(GL_ENABLE_BIT);
+    QImage snapImg = plyView->getSnap();
+    snapImg.save(filePath);
+    statusBar()->showMessage(QString::fromLocal8Bit("½ØÆÁ:%1").arg(filePath), 3000);
 }
 void PlyWindow::slotReset()
 {

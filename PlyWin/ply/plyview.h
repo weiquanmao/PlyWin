@@ -6,6 +6,7 @@
 
 #include <GL/glew.h>	/* glew一定在QGLWidget之前 */
 #include <QGLWidget>
+#include <QImage>
 
 #include <wrap/gui/trackball.h>
 #include <wrap/gl/trimesh.h>
@@ -71,6 +72,7 @@ public:
 	}
 	void resetTrackBall();
 
+    QImage getSnap();
 private:
 	MeshDocument meshDoc;
 

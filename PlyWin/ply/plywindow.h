@@ -4,14 +4,10 @@
 #include <QMainWindow>
 
 class PlyView;
-class RenderParamSet;
 class QToolBar;
 class QLabel;
+class QLineEdit;
 class QActionGroup;
-class QThread3DPro;
-
-class QDoubleSpinBox;
-class QPushButton;
 
 class PanelSetting;
 class PanelObjList;
@@ -27,15 +23,16 @@ public:
 private:
 
 	PlyView *plyView;
+    QString m_shotFolder;
 	bool bRuning;
 private:
 	QToolBar *toolBar;
 	QAction *actionOpen;
 	QAction *actionSave;
-    QAction *actionShot;
 	QAction *actionReset;
 	QAction *actionShowTrackBall;
 	QAction *actionShowInfoPanel;
+    QAction *actionShowViewParam;
 	QAction *actionLight;
 	QActionGroup *actionGrupModel;
 	QAction *actionModel_Points;
@@ -43,8 +40,11 @@ private:
 	QAction *actionModel_Flat;
 	QAction *actionModel_FlatAndLines;
 	QAction *actionModel_Smooth;
-    QAction *actionShowViewParam;
+    QAction *actionShotFolder;
+    QLineEdit *editShotName;
+    QAction *actionShot;    
 	QLabel *statusLabel;
+    
     PanelSetting *panel_setting;
 	void createActions();
 	void createToolBar();
@@ -57,13 +57,15 @@ protected:
 private slots:
 	void slotOpen();
 	void slotSave();
-    void slotShot();
 	void slotReset();
 	void slotShowTrackBall();
 	void slotShowInfoPanel();
     void slotShowViewParam(bool bOn);
 	void slotChangLight();
 	void slotChangeModel(QAction *act);
+
+    void slotSetShotFolder();
+    void slotShot();
 
     void slotSetViewParam();
     void slotUpdateViewParam();

@@ -126,7 +126,12 @@ void PlyView::resetTrackBall()
     fov=60.0f;
     update();
 }
-
+QImage PlyView::getSnap()
+{
+    repaint();
+    QImage snapImg = grabFrameBuffer(false);
+    return snapImg;
+}
 void PlyView::initRender()
 {//初始化显示窗口样式参数
 
@@ -575,11 +580,10 @@ void PlyView::paintEvent(QPaintEvent *event)
         glDisable(GL_DEPTH_TEST);
         displayInfo(&painter);
         glPopAttrib();
-    }
 
-    //如果当前窗口被选中，边界处理
-
-    displayViewerHighlight();
+        //如果当前窗口被选中，边界处理
+        displayViewerHighlight();
+    }  
 
     painter.endNativePainting();//结束
 	
