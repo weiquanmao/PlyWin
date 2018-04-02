@@ -84,7 +84,7 @@ bool PlyView::save()
 	QString savePath = QFileDialog::getSaveFileName(
 		this, "Save...", fileInfo.filePath(),
 		"All Known Formats (*.ply;*.obj;*.stl);;"
-		"Stanford Polygen File Format (*.ply);;"
+		"Stanford Polygon File Format (*.ply);;"
 		"Alias Wavefront Object (*.obj);;"
 		"STL File Format (*.stl)");
 
@@ -95,9 +95,9 @@ bool PlyView::save()
 bool PlyView::open(QString file)
 {
 	if (file.isEmpty())
-		file = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("打开..."), "",
+		file = QFileDialog::getOpenFileName(this, "Open...", "",
 			"All Known Formats (*.ply;*.obj;*.stl);;"
-			"Stanford Polygen File Format (*.ply);;"
+			"Stanford Polygon File Format (*.ply);;"
 			"Alias Wavefront Object (*.obj);;"
 			"STL File Format (*.stl)" );
 
@@ -133,39 +133,31 @@ QImage PlyView::getSnap()
     return snapImg;
 }
 void PlyView::initRender()
-{//初始化显示窗口样式参数
+{	
+    RenderParamSet temp;
 
-	RenderParamSet temp;
-	//绘图区域背景（渐变）上方颜色	
     temp.addParam(new ColorParam("CParam:BackgroundColor_GLAreaBot", 
 		QColor(255,255,255),"BGC_Bot","The GLArea's BGC on BOTTOM."));
-    //绘图区域背景（渐变）下方颜色
 	temp.addParam(new ColorParam("CParam:BackgroundColor_GLAreaTop", 
 		QColor( 255, 255, 255),
 		"BGC_Top","The GLArea's BGC on TOP."));
-    //信息显示区域背景色
 	temp.addParam(new ColorParam("CParam:BackgroundColor_InfoPaneArea",
 		QColor(0,122,204),
 		"InfoPane BGC","The Color of InfoPane_Area."));
 
-	//环境光
     temp.addParam(new ColorParam("CParam:BaseLight_Ambient",
 		QColor( 32, 32, 32),
 		"Base Light Ambient Color","The Base_Light_Ambient Color."));
-	//漫反射
 	temp.addParam(new ColorParam("CParam:BaseLight_Diffuse",
 		QColor(204,204,204),
 		"Base Light Diffuse Color","The Base_Light_Diffuse Color."));
-    //反射
 	temp.addParam(new ColorParam("CParam:BaseLight_Specular" ,
 		QColor(255,255,255),
 		"Base Light Specular Color","The Base_Light_Specular Color."));
 
-	//后灯
     temp.addParam(new ColorParam("CParam:FancyLightDiffuse_Back" ,
 		QColor(255,204,204),
 		"Fancy Light Diffuse Color Back","The Fancy_Light_Diffuse Color from Back."));
-    //前灯
 	temp.addParam(new ColorParam("CParam:FancyLightDiffuse_Front" , 
 		QColor(204,204,255),
 		"Fancy Light Diffuse Color Front","The Fancy_Light_Diffuse Color from Front."));
@@ -174,18 +166,14 @@ void PlyView::initRender()
 		true,"FancyDiffuseColor used",
 		"If TRUE, the FancyDiffuseColor used instead of BaseLightDiffuseColor."));
 
-	//画笔大小随距离减小开关
     temp.addParam(new BoolParam("BParam:Point_DistanceAttenuation" , 
 		true,"Perspective Varying Point Size",
-		"If TRUE, the size of the points is drawn with a size proprtional to the distance from the observer."));
-    //画笔抗锯齿开关
+		"If TRUE, the size of the points is drawn with a size proportional to the distance from the observer."));
 	temp.addParam(new BoolParam("BParam:Point_Smooth" , 
-		false,"Antialiased Point",
+		false,"Anti-aliased Point",
 		"If TRUE, the points are drawn with small CIRCLEs instead of fast squared dots."));
-    //画笔大小
 	temp.addParam(new FloatParam("FParam:Point_Size" , 
 		2.0, "Point Size","The base size of points when drawn."));
-    //纹理存储空间大小(MB)
 	temp.addParam(new IntParam("IParam:MemorySize_MaxTexture" , 
 		256, "Max Texture Memory (in MB)",
 		"The maximum quantity of texture memory allowed to load mesh textures."));
@@ -282,12 +270,12 @@ void PlyView::setView()
 {
 	int a1 = QTLogicalToDevice(this,width());
 	int a2 = QTLogicalToDevice(this,height());
-    glViewport(0,0, (GLsizei) QTLogicalToDevice(this,width()),(GLsizei) QTLogicalToDevice(this,height()));//左下角位置和窗口大小
+    glViewport(0,0, (GLsizei) QTLogicalToDevice(this,width()),(GLsizei) QTLogicalToDevice(this,height()));
     GLfloat fAspect = (GLfloat)width()/height();
 
-	//设置GL_PROJECTION
+
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();//将当前的用户坐标系的原点移到了屏幕中心,复位操作
+    glLoadIdentity();
 
     Matrix44f mtTr, mtSc, mt;
 	mtTr.SetTranslate( trackball.center);
@@ -299,7 +287,6 @@ void PlyView::setView()
 
 	float viewRatio = 1.75;
     float cameraDist = viewRatio / tanf(math::ToRad(fov*0.5f));
-	//视场角太小时，相机距离将很远
     if(fov==5) 
 		cameraDist = 3.0f; 
 
@@ -313,10 +300,8 @@ void PlyView::setView()
     else		
 		gluPerspective(fov, fAspect, nearPlane, farPlane);
 
-	//设置GL_MODELVIEW
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-	//位于0, 0, cameraDist，对准0, 0, 0看，相机相平面方位0, 1, 0
     gluLookAt(0, 0, cameraDist,0, 0, 0, 0, 1, 0);
 }
 void PlyView::drawGradient()
@@ -343,7 +328,7 @@ void PlyView::drawGradient()
     glEnd();
 	//----------------------------------------------------
     glPopAttrib();
-    glPopMatrix(); // restore modelview
+    glPopMatrix(); // restore model view
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -356,7 +341,6 @@ void PlyView::drawLight()
     trackball_light.GetView();
     trackball_light.Apply();
 
-	//第3方向无穷远光
     static float lightPosF[]={0.0, 0.0, 1.0, 0.0};
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosF);
     static float lightPosB[]={0.0, 0.0, -1.0, 0.0};
@@ -441,7 +425,7 @@ void PlyView::displayInfo(QPainter *painter)
     {
 
         col1Text += QString("Mesh: %1\n").arg(meshDoc.mesh->label());
-		col1Text += QString("Vertices: %1\n").arg(meshDoc.svn());
+		col1Text += QString("Vertexes: %1\n").arg(meshDoc.svn());
         col1Text += QString("Faces: %1\n").arg(meshDoc.sfn());
 
         if (fov>5) 
@@ -521,27 +505,22 @@ void PlyView::paintEvent(QPaintEvent *event)
     painter.beginNativePainting();
 	// -- Begin --
     makeCurrent();
-    if( !isValid() )			//系统是否受GL支持
+    if( !isValid() )
 		return;
 	   
 
-	//清屏
     glClearColor(1.0,1.0,1.0,0.0);
 	glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);		//true:禁止向深度缓冲区写入数据，图像可见性与深度无关而与创建先后顺序有关
+    glDepthMask(GL_TRUE);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// 设置投影矩阵
     setView();  
 
-	//画渐变背景
     drawGradient(); 
-	//画光线
     drawLight();
 
     glPushMatrix();
 
-    //生成trackball
     trackball.GetView();
     trackball.Apply();
     glPushMatrix();
@@ -555,7 +534,7 @@ void PlyView::paintEvent(QPaintEvent *event)
             setLight();
             glEnable(GL_COLOR_MATERIAL);
             glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-            glDisable(GL_CULL_FACE);		//背面显示
+            glDisable(GL_CULL_FACE);
 
 			meshDoc.mesh->glw.SetHintParamf(GLW::HNPPointSize,glRenderSetting.pointSize);
             meshDoc.mesh->glw.SetHintParami(GLW::HNPPointDistanceAttenuation,glRenderSetting.pointDistanceAttenuation?1:0);
@@ -573,7 +552,6 @@ void PlyView::paintEvent(QPaintEvent *event)
 
 	glPopMatrix();
 
-	//画信息显示区域
     if (infoAreaVisible)
     {
         glPushAttrib(GL_ENABLE_BIT);
@@ -581,11 +559,10 @@ void PlyView::paintEvent(QPaintEvent *event)
         displayInfo(&painter);
         glPopAttrib();
 
-        //如果当前窗口被选中，边界处理
         displayViewerHighlight();
     }  
 
-    painter.endNativePainting();//结束
+    painter.endNativePainting();
 	
     emit viewUpdated();
 }

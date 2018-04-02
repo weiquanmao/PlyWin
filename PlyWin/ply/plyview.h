@@ -1,10 +1,10 @@
-#ifndef __PLYVIEW_H_
-#define __PLYVIEW_H_
+#ifndef _PLYVIEW_H_
+#define _PLYVIEW_H_
 
 #include "RenderParam.h"
 #include "MeshDoc.h"
 
-#include <GL/glew.h>	/* glew一定在QGLWidget之前 */
+#include <GL/glew.h>	/* glew must be placed before QGLWidget */
 #include <QGLWidget>
 #include <QImage>
 
@@ -77,9 +77,9 @@ private:
 	MeshDocument meshDoc;
 
 	GLRenderSetting glRenderSetting;
-	float fov;			//视场角
-	float nearPlane;	//近处
-    float farPlane;		//远处
+	float fov;
+	float nearPlane;
+    float farPlane;
 	float clipRatioNear;
 	float clipRatioFar;
 
@@ -91,7 +91,7 @@ private:
 	bool activeDefaultTrackball; 
 	bool lightSwitch;
 	vcg::GLW::DrawMode drawMode;
-// ------ Begin My Satelite ------
+// ------ Begin My Satellite ------
 private:
 	ObjSet *m_ObjSet;
     std::vector<int> m_viewList;
@@ -108,7 +108,7 @@ public:
 private:
     bool containId(const int id);
 	void drawStruct();
-// ------ End My Satelite ------
+// ------ End My Satellite ------
 private:
 	void setRenderSetting(RenderParamSet& renderParamSet);
 
@@ -134,4 +134,4 @@ signals:
 };
 
 
-#endif //__PLYVIEW_H_
+#endif //!_PLYVIEW_H_

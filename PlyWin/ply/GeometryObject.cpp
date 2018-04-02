@@ -61,7 +61,7 @@
 "# ----- END OF COMMENTS -----\n" \
 
 
-void SaveObjSet(ObjSet *objSet, const char *file)
+void SaveObjSet(const ObjSet *objSet, const char *file)
 {
     if (objSet != 0 && file != 0) {
         std::ofstream out(file, std::ios::out);

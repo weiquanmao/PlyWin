@@ -1,5 +1,5 @@
-#ifndef __RENDERPARAM_H_
-#define __RENDERPARAM_H_
+#ifndef _RENDERPARAM_H_
+#define _RENDERPARAM_H_
 
 #include <assert.h>
 
@@ -85,9 +85,9 @@ public:
 class RenderParam
 {
 public:
-	const QString name; //Ãû³Æ
-	Value* val; //Öµ
-	ParamDecoration* pd; //ÃèÊö
+	const QString name;
+	Value* val;
+	ParamDecoration* pd;
 
 	RenderParam(const QString nm, Value* v, ParamDecoration* prdec);
 	RenderParam(RenderParam* Par);
@@ -136,4 +136,4 @@ public:
 	float getFloat(QString name) const;
 };
 
-#endif // __RENDERPARAM_H_
+#endif //!_RENDERPARAM_H_

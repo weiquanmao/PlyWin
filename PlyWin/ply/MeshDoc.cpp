@@ -179,7 +179,7 @@ bool MeshDocument::loadMesh(QString Path, QString label)
 }
 bool MeshDocument::saveMesh(QString Path)
 {
-#if 0 //delete vert
+#if 0 //delete vertex
 	mesh->cm.vn = 0;
 	for (CMeshO::VertexIterator vi = mesh->cm.vert.begin();vi != mesh->cm.vert.end();++vi)
 		if (!(*vi).IsD())

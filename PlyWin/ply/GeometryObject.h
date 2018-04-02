@@ -5,15 +5,15 @@
 #include <vcg/space/deprecated_point3.h>
 
 enum GeoObjType {
-    GeoObj_Patch = 0x100,
+    GeoObj_Patch    = 0x100,
     Patch_Rectangle = 0x111,
-    Patch_Circle = 0x121,
-    Patch_Arbitary = 0x1FF,
+    Patch_Circle    = 0x121,
+    Patch_Arbitary  = 0x1FF,
 
-    GeoObj_Solid = 0x200,
-    Solid_Cube = 0x211,
+    GeoObj_Solid   = 0x200,
+    Solid_Cube     = 0x211,
     Solid_Cylinder = 0x212,
-    Solid_Cone = 0x221
+    Solid_Cone     = 0x221
 };
 
 class GeoObj
@@ -177,7 +177,7 @@ public:
     }
 };
 
-void SaveObjSet(ObjSet *objSet, const char *file);
+void SaveObjSet(const ObjSet *objSet, const char *file);
 ObjSet* LoadObjSet(const char *file);
 
 #endif // !_GEOMETRY_OBJECT_H_FILE_

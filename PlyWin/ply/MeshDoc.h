@@ -1,5 +1,5 @@
-#ifndef __MESHMODEL_H
-#define __MESHMODEL_H
+#ifndef _MESHMODEL_H_
+#define _MESHMODEL_H_
 
 #include <QObject>
 #include <QList>
@@ -141,8 +141,10 @@ public:
 	int mask() {return currentMask;}
 
 	void Clear();
-	QString label() const {	if(_label.isEmpty()) return shortName(); 
-										else	return _label;	};
+	QString label() const {
+        if(_label.isEmpty()) return shortName();
+        else	             return _label;	
+    };
 	QString shortName() const { return QFileInfo(fullPathFileName).fileName(); };
 	QString fullName() const { return fullPathFileName; };
 };
@@ -168,15 +170,13 @@ public:
 	bool isBusy() { return busy;};
 	void setBusy(bool _busy) {	busy=_busy;};
 
-	int svn() 
-	{
+	int svn() {
 		if (mesh != 0) return mesh->cm.vn;
-		else return 0;
+		else           return 0;
 	}
-	int sfn() 
-	{
+	int sfn()  {
 		if (mesh != 0) return mesh->cm.fn;
-		else return 0;
+		else           return 0;
 	}
 	vcg::Box3f bbox()
 	{
@@ -187,4 +187,4 @@ public:
 	}
 };
 
-#endif // __MESHMODEL_H_
+#endif // !_MESHMODEL_H_

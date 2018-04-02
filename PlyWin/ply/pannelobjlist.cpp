@@ -15,7 +15,7 @@ PanelObjList::PanelObjList(QWidget *parent)
     delete lTitleBar;
     
     tw = new QTreeWidget(this);
-    tw->headerItem()->setFont(0, QFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ")));
+    setFont(QFont("Microsoft Yahei"));
     tw->headerItem()->setText(0, "GEO Obj List");
 
     m_planeList = new QTreeWidgetItem(tw);

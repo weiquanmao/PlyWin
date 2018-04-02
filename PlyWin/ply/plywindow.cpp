@@ -157,17 +157,17 @@ void PlyWindow::createActions()
 	actionModel_Points->setChecked(true);
 	connect(actionGrupModel, SIGNAL(triggered(QAction*)), this, SLOT(slotChangeModel(QAction*)));
 
-    actionShotFolder = new QAction("Set Snapsot Folder",this);
+    actionShotFolder = new QAction("Set Snapshot Folder",this);
     actionShotFolder->setToolTip("Set Snapshot folder.");
-    actionShotFolder->setIcon(QIcon("./ply/images/setfolder.png"));
+    actionShotFolder->setIcon(QIcon("./ply/images/setsnapshotfolder.png"));
     connect(actionShotFolder, SIGNAL(triggered()), this, SLOT(slotSetShotFolder()));
 
     editShotName = new QLineEdit(this);
-    editShotName->setFont(QString::fromLocal8Bit("Î¢ÈíÑÅºÚ"));
+    editShotName->setFont(QFont("Microsoft Yahei"));
     editShotName->setFrame(false);
     editShotName->setMaximumWidth(128);
     editShotName->setPlaceholderText("SnapShot");
-    actionShot = new QAction("Snapsot",this);
+    actionShot = new QAction("Snapshot",this);
     actionShot->setToolTip("Snapshot.");
     actionShot->setIcon(QIcon("./ply/images/snapshot.png"));
     actionShot->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_S));
@@ -274,10 +274,10 @@ void PlyWindow::slotSave()
 void PlyWindow::slotSetShotFolder()
 {
     QString folder = QFileDialog::getExistingDirectory(this,
-        QString::fromLocal8Bit("ÉèÖÃ½ØÆÁÍ¼Ïñ±£´æÂ·¾¶..."), m_shotFolder);
+        QString::fromLocal8Bit("Set directory to save snapshots..."), m_shotFolder);
     if (!folder.isEmpty()) {
         m_shotFolder = folder;
-        statusBar()->showMessage(QString::fromLocal8Bit("½ØÆÁ±£´æÂ·¾¶:%1").arg(m_shotFolder), 3000);
+        statusBar()->showMessage(QString("Folder to save snapshots: %1").arg(m_shotFolder), 3000);
     }
 }
 void PlyWindow::slotShot()
@@ -294,7 +294,7 @@ void PlyWindow::slotShot()
     glPushAttrib(GL_ENABLE_BIT);
     QImage snapImg = plyView->getSnap();
     snapImg.save(filePath);
-    statusBar()->showMessage(QString::fromLocal8Bit("½ØÆÁ:%1").arg(filePath), 3000);
+    statusBar()->showMessage(QString("Save snapshot: %1").arg(filePath), 3000);
 }
 void PlyWindow::slotReset()
 {

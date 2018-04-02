@@ -30,6 +30,4 @@ signals:
     void signalListChanged();
 };
 
-
-
 #endif // !_PANNEL_GEO_OBJ_LIST_H_FILE_
