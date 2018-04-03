@@ -9,6 +9,8 @@ PlyWin is a reduced version of [MeshLab](http://www.meshlab.net/), which aims at
 + [Qt](https://www.qt.io/) (our version is msvc2015_5.6.1)
 + [VCG Library](http://vcg.isti.cnr.it/vcglib/) (embeded)
 
+## Screenshot
+
 ![Screenshot of PlyWin](https://github.com/weiquanmao/PlyWin/blob/master/screenshot.jpg)
 
 ---
