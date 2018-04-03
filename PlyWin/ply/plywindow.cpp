@@ -16,6 +16,7 @@
 #include <QDragEnterEvent>
 #include <QMimeData>
 
+#include <io.h>
 
 #pragma region [-View Part-]
 PlyWindow::PlyWindow(QWidget *parent)
@@ -280,6 +281,178 @@ void PlyWindow::slotSetShotFolder()
         statusBar()->showMessage(QString("Folder to save snapshots: %1").arg(m_shotFolder), 3000);
     }
 }
+void getParamsSyn(
+    QString name, 
+    double &rx, double &ry, double &rz,
+    double &tx, double &ty, double &tz, 
+    double &r)
+{
+    if (name == "cube") {
+        rx = 75; ry = -24; rz = -50;
+        tx = 0.0; ty = -0.8;  tz = 0.8;
+        r = 0.06;
+    }
+    if (name == "dsp") {
+        rx = 30; ry = -15; rz = 40;
+        tx = 0.0; ty = -4.0;  tz = 2.0;
+        r = 0.08;
+
+    }
+    if (name == "gps") {
+        rx = 125; ry = -70; rz = -150;
+        tx = 2.0; ty = 0.4;  tz = 4.0;
+        r = 0.07;
+    }
+    if (name == "helios") {
+        rx = 12; ry = -35; rz = -8;
+        tx = 13; ty = 0.8;  tz = 8.0;
+        r = 0.08;
+    }
+    if (name == "minisat") {
+        rx = -148; ry = -76; rz = -95;
+        tx = -0.3; ty = -0.5;  tz = 1.2;
+        r = 0.06;
+    }
+    if (name == "radarsat") {
+        rx = 154; ry = -58; rz = -157;
+        tx = 0.0; ty = -1.8;  tz = 2.4;
+        r = 0.07;
+    }
+    if (name == "scisat") {
+        rx = -32; ry = -54; rz = -150;
+        tx = 0.0; ty = 0.5;  tz = 0.6;
+        r = 0.10;
+    }
+    if (name == "spot") {
+        rx = -5; ry = -65; rz = -20;
+        tx = -0.6; ty = -0.1;  tz = -1.4;
+        r = 0.10;
+    }
+}
+void getParamsRecon(
+    QString name,
+    double &rx, double &ry, double &rz,
+    double &tx, double &ty, double &tz,
+    double &r)
+{
+    if (name == "cube") {
+        rx = -75; ry = -35; rz = -40;
+        tx = -3.0; ty = 0.0;  tz = 15.0;
+        r = 0.20;
+    }
+    if (name == "dsp") {
+        rx = -15; ry = 10; rz = -160;
+        tx = 12.0; ty = 1.5;  tz = -10.0;
+        r = 0.25;
+
+    }
+    if (name == "gps") {
+        rx = 15; ry = 20; rz = -20;
+        tx = -12.0; ty = 0.0;  tz = 10.0;
+        r = 0.20;
+    }
+    if (name == "helios") {
+        rx = -160; ry = 12; rz = 4;
+        tx = 1.6; ty = 0.0;  tz = 9.5;
+        r = 0.35;
+    }
+    if (name == "minisat") {
+        rx = 175; ry = -50; rz = 120;
+        tx = 1.1; ty = 0.0;  tz = -2.4;
+        r = 1.20;
+    }
+    if (name == "radarsat") {
+        rx = -160; ry = -30; rz = -10;
+        tx = -4.0; ty = 0.1;  tz = 4.0;
+        r = 0.60;
+    }
+    if (name == "scisat") {
+        rx = -20; ry = 15; rz = 180;
+        tx = -7.5; ty = 0.0;  tz = 13.0;
+        r = 0.30;
+    }
+    if (name == "spot") {
+        rx = 170; ry = -75; rz = -15;
+        tx = 7.0; ty = 0.1;  tz = 0.1;
+        r = 0.70;
+    }
+    if (name == "sz") {
+        rx = 45; ry = 8; rz = 10;
+        tx = 0.1; ty = -1.0;  tz = 8.0;
+        r = 0.30;
+    }
+    if (name == "tg") {
+        rx = 125; ry = 70; rz = -150;
+        tx = -5.0; ty = 0.0;  tz = -0.2;
+        r = 0.47;
+    }
+}
+
+void PlyWindow::slotShot()
+{
+
+    const std::string inFolder = m_shotFolder.toLocal8Bit();
+    const std::string outFolder = m_shotFolder.toLocal8Bit();
+
+    const std::string szPath = inFolder + "/*.struct";
+
+    intptr_t hFile = 0;
+    struct _finddata_t fileinfo;
+    if ((hFile = _findfirst(szPath.c_str(), &fileinfo)) != -1)
+    {
+        do
+        {
+            if ((fileinfo.attrib & _A_ARCH))
+            {
+                const std::string FileName = fileinfo.name;
+                const std::string BaseName = FileName.substr(0, FileName.rfind('.'));
+                const std::string StrucFile = inFolder + "/" + FileName;
+                const std::string PlyFile = inFolder + "/" + BaseName + ".ply";
+                const std::string Img = outFolder + "/" + BaseName + ".png";
+
+                openFile(PlyFile.c_str());
+                pluginLoad(StrucFile.c_str());
+                double rx, ry, rz;
+                double tx, ty, tz;
+                double r;
+                getParamsRecon(BaseName.c_str(), rx, ry, rz, tx, ty, tz, r);
+                rx = rx / 180.0 * 3.141592635;
+                ry = ry / 180.0 * 3.141592635;
+                rz = rz / 180.0 * 3.141592635;
+                plyView->getTrackBall()->track.rot.FromEulerAngles(rx, ry, rz);
+                plyView->getTrackBall()->track.tra[0] = tx;
+                plyView->getTrackBall()->track.tra[1] = ty;
+                plyView->getTrackBall()->track.tra[2] = tz;
+                plyView->getTrackBall()->track.sca = r;
+                plyView->repaint();
+
+                // plyView->setDrawModel(vcg::GLW::DMFlat);
+                plyView->setDrawModel(vcg::GLW::DMPoints);
+                if (0) {
+                    std::vector<int> vlist;
+                    pannel_objList->getList(vlist);
+                    for (int i = 0; i < vlist.size(); ++i) {
+                        if ((vlist.at(i) & 0x0200) == 0x0200) {
+                            vlist.erase(vlist.begin() + i);
+                            i--;
+                        }
+                    }
+                    plyView->setStrucViewList(vlist);
+                }
+                plyView->repaint();
+                glPushAttrib(GL_ENABLE_BIT);
+                QImage snapImg = plyView->getSnap();
+                snapImg.save(Img.c_str());
+                statusBar()->showMessage(QString::fromLocal8Bit("截屏:%1").arg(Img.c_str()), 1000);
+                glPopAttrib();
+
+            }
+        } while (_findnext(hFile, &fileinfo) == 0);
+        _findclose(hFile);
+    }
+
+}
+/*
 void PlyWindow::slotShot()
 {
     QString fileName = editShotName->text();
@@ -296,6 +469,7 @@ void PlyWindow::slotShot()
     snapImg.save(filePath);
     statusBar()->showMessage(QString("Save snapshot: %1").arg(filePath), 3000);
 }
+*/
 void PlyWindow::slotReset()
 {
 	plyView->resetTrackBall();
