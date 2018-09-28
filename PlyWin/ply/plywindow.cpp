@@ -19,18 +19,20 @@
 
 #pragma region [-View Part-]
 PlyWindow::PlyWindow(QWidget *parent)
-	: QMainWindow(parent)
-	, plyView(0)
+    : QMainWindow(parent)
+    , plyView(0)
     , m_shotFolder("..")
-	, bRuning(false)
+    , bRuning(false)
 {
 	setAcceptDrops(true);
 	//setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle("3DViewer");
 	setWindowIcon(QIcon("./ply/images/plyviewer.png"));
-	QFile file("./ply/qss");
-	if (file.open(QFile::ReadOnly))
-		setStyleSheet(file.readAll());
+	QFile fileIn("./ply/qss");
+	if (fileIn.open(QFile::ReadOnly)) {
+		setStyleSheet(fileIn.readAll());
+		fileIn.close();
+	}
 
 	createActions();
 	createToolBar();
